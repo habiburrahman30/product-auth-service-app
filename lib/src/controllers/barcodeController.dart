@@ -6,7 +6,6 @@ import 'package:product_auth_service/src/helpers/getHelper.dart';
 import 'package:product_auth_service/src/helpers/helper.dart';
 
 class BarcodeController extends GetxController with GetHelper {
-  // final _getHelper = GetHelper();
   final qrCode = ''.obs;
   final _dio = Dio();
   final isRefreshing = false.obs;
@@ -35,7 +34,7 @@ class BarcodeController extends GetxController with GetHelper {
 
   Future<void> matchUniqueCode() async {
     try {
-      Uri uri = Helper.getUri('api/unique-code/${qrCode.value}');
+      Uri uri = Helper.getUri('api/unique-code-match/${qrCode.value}');
       print(uri);
       final res = await _dio.post(
         '$uri',
