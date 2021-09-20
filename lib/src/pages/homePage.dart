@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
-import 'package:product_auth_service/src/controllers/QRCodeController.dart';
+import 'package:product_auth_service/src/controllers/barcodeController.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,57 +9,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _qrcodeC = Get.put(QRCodeController());
-
-  String _scanBarcode = 'Unknown';
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<void> scanQR() async {
-    String barcodeScanRes;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.QR);
-      print(barcodeScanRes);
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _scanBarcode = barcodeScanRes;
-    });
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> scanBarcodeNormal() async {
-    String barcodeScanRes;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-      print(barcodeScanRes);
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _scanBarcode = barcodeScanRes;
-    });
-  }
+  final qrTextController = TextEditingController(text: '');
+  final _qrcodeC = Get.put(BarcodeController());
 
   @override
   Widget build(BuildContext context) {
@@ -68,122 +18,149 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Product Auth Service'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              _qrcodeC.reset();
+              setState(() {
+                qrTextController.text = '';
+              });
+            },
+            color: Colors.red,
+            icon: Icon(Icons.refresh),
+          ),
+          SizedBox(
+            width: 16,
+          )
+        ],
       ),
-      body: PageView(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Obx(
-            () => Container(
-              // height: Get.height,
-              alignment: Alignment.center,
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  TextField(
-                    onChanged: _qrcodeC.qrCode,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20.0,
-                          vertical: 15.0,
-                        ),
-                        labelText: 'QR Code',
-                        labelStyle: TextStyle(
-                          color: Theme.of(context).accentColor,
-                        ),
-                        hintText: 'enter product code',
-                        hintStyle: TextStyle(
-                          color: Theme.of(context).focusColor.withOpacity(0.7),
-                        ),
-                        prefixIcon: Icon(
-                          Icons.qr_code,
-                          color: Theme.of(context).accentColor,
-                        ),
-                        // errorBorder: OutlineInputBorder(
-                        //   borderSide: BorderSide(
-                        //     color: Colors.red,
-                        //     width: 2.0,
-                        //     style: BorderStyle.solid,
-                        //   ),
-                        //   borderRadius: BorderRadius.circular(6.0),
-                        // ),
-                        // errorText: 'Please enter valid QR code',
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.red,
-                          ),
-                        )
+            () => _qrcodeC.isRefreshing.value == true
+                ? Center(child: CircularProgressIndicator())
+                : Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    child: Card(
+                      elevation: 6,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 15.0,
+                            ),
+                            TextField(
+                              controller: qrTextController,
+                              onChanged: _qrcodeC.qrCode,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20.0,
+                                  vertical: 15.0,
+                                ),
+                                labelText: 'QR Code',
+                                labelStyle: TextStyle(
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                hintText: 'enter product code',
+                                hintStyle: TextStyle(
+                                  color: Theme.of(context)
+                                      .focusColor
+                                      .withOpacity(0.7),
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.qr_code,
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                border: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                              textInputAction: TextInputAction.next,
+                            ),
+                            SizedBox(
+                              height: 25.0,
+                            ),
 
-                        // filled: true,
+                            _qrcodeC.qrCode.value.isNotEmpty
+                                ? MaterialButton(
+                                    onPressed: _qrcodeC.qrCode.value.isEmpty
+                                        ? () {
+                                            print('No Data');
+                                          }
+                                        : () {
+                                            print(_qrcodeC.qrCode.value);
+                                            _qrcodeC.matchUniqueCode();
+                                          },
+                                    child: Text(
+                                      'Verify',
+                                      style: TextStyle(
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    shape: StadiumBorder(),
+                                    color: Colors.black.withOpacity(1),
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 68),
+                                  )
+                                : MaterialButton(
+                                    onPressed: () async {
+                                      final res = await _qrcodeC.scanQR();
+                                      setState(() {
+                                        _qrcodeC.qrCode.value = res;
+                                        qrTextController.text = res;
+                                      });
+                                    },
+                                    child: Text(
+                                      'Scan QR',
+                                      style: TextStyle(
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    shape: StadiumBorder(),
+                                    color: Colors.blue,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: Get.width / 9),
+                                  ),
+                            // SizedBox(
+                            //   height: 15.0,
+                            // ),
+                            // Text(
+                            //   'Scan result : ${_qrcodeC.qrCode.value}\n',
+                            //   style: TextStyle(fontSize: 20),
+                            // ),
+                            // SizedBox(
+                            //   height: 15.0,
+                            // ),
+                            // MaterialButton(
+                            //   onPressed: _qrcodeC.qrCode.value.isEmpty
+                            //       ? () {
+                            //           print('No Data');
+                            //         }
+                            //       : () {
+                            //           print(_qrcodeC.qrCode.value);
+                            //         },
+                            //   child: Text(
+                            //     'Verify',
+                            //     style: TextStyle(color: Theme.of(context).primaryColor),
+                            //   ),
+                            //   shape: StadiumBorder(),
+                            //   color: Colors.black.withOpacity(1),
+                            //   padding: EdgeInsets.symmetric(horizontal: 68),
+                            // ),
+                          ],
                         ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  SizedBox(
-                    height: 25.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      MaterialButton(
-                        onPressed: () => scanBarcodeNormal(),
-                        child: Text(
-                          'Scan Barcode',
-                          style:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                        ),
-                        shape: StadiumBorder(),
-                        color: Colors.blue,
-                        padding: EdgeInsets.symmetric(horizontal: 40),
                       ),
-                      SizedBox(
-                        width: 15.0,
-                      ),
-                      MaterialButton(
-                        onPressed: () => scanQR(),
-                        child: Text(
-                          'Scan QR',
-                          style:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                        ),
-                        shape: StadiumBorder(),
-                        color: Colors.blue,
-                        padding: EdgeInsets.symmetric(horizontal: 60),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  Text(
-                    'Scan result : $_scanBarcode\n',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  MaterialButton(
-                    onPressed: _qrcodeC.qrCode.value.isEmpty
-                        ? () {
-                            print('No Data');
-                          }
-                        : () {
-                            print(_qrcodeC.qrCode.value);
-                          },
-                    child: Text(
-                      'Verify',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
                     ),
-                    shape: StadiumBorder(),
-                    color: Colors.black.withOpacity(1),
-                    padding: EdgeInsets.symmetric(horizontal: 68),
                   ),
-                ],
-              ),
-            ),
           )
         ],
       ),

@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: Colors.white,
         ),
         child: Center(
           child: AnimatedContainer(
@@ -37,11 +37,10 @@ class _SplashScreenState extends State<SplashScreen> {
               // color: Colors.white,
               borderRadius: BorderRadius.circular(50),
             ),
-            child: FlutterLogo(),
-            // child: Image.asset(
-            //   'assets/images/logo.png',
-            //   height: 100,
-            // ),
+            child: Image.asset(
+              'assets/images/logo.png',
+              height: 100,
+            ),
           ),
         ),
       ),
