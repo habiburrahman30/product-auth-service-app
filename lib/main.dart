@@ -6,7 +6,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await GlobalConfiguration().loadFromAsset("configurations");
-  print("base_url: ${GlobalConfiguration().getValue('base_url')}");
-  print("api_base_url: ${GlobalConfiguration().getValue('api_base_url')}");
+  // print("base_url: ${GlobalConfiguration().getValue('base_url')}");
+  // print("api_base_url: ${GlobalConfiguration().getValue('api_base_url')}");
   runApp(App());
 }

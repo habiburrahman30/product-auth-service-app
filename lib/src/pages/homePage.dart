@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                                   horizontal: 20.0,
                                   vertical: 15.0,
                                 ),
-                                labelText: 'QR Code',
+                                labelText: 'Barcode Code',
                                 labelStyle: TextStyle(
                                   color: Theme.of(context).accentColor,
                                 ),
@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                                       });
                                     },
                                     child: Text(
-                                      'Scan QR',
+                                      'Scan Code',
                                       style: TextStyle(
                                           color:
                                               Theme.of(context).primaryColor),
