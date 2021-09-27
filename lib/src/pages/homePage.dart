@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
                       elevation: 6,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 20),
+                            horizontal: 20, vertical: 50),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                                   horizontal: 20.0,
                                   vertical: 15.0,
                                 ),
-                                labelText: 'Barcode Code',
+                                labelText: 'Barcode',
                                 labelStyle: TextStyle(
                                   color: Theme.of(context).accentColor,
                                 ),
